@@ -8,6 +8,7 @@ import java.util.Random;
 
 @Service
 public class MancalaService {
+
     static MancalaGame mancala = null;
 
     public MancalaGame get(){
@@ -29,6 +30,7 @@ public class MancalaService {
     }
 
     private void setTurn(Player player) {
+
         mancala.setCurrentPlayer(player);
     }
 

@@ -18,4 +18,7 @@ public class Mancala {
         this.player2 = new Player(secondPlayerUsername, numberOfPits, numberOfStones);
 
     }
+
+
+
 }

@@ -1,6 +1,6 @@
 package com.game.mancala.controller;
 
-import com.game.mancala.model.Mancala;
+import com.game.mancala.dto.MancalaGameDTO;
 import com.game.mancala.model.MancalaGame;
 import com.game.mancala.service.MancalaService;
 import lombok.RequiredArgsConstructor;
@@ -16,21 +16,20 @@ public class MancalaController {
     private final MancalaService mancalaService;
 
     @GetMapping
-    public ResponseEntity<Mancala> getName(){
+    public ResponseEntity<MancalaGameDTO> getGame(){
         MancalaGame mancalaGame = mancalaService.get();
         if(mancalaGame == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        return ResponseEntity.ok().body(mancalaGame);
+        return ResponseEntity.ok().body(mancalaGame.toEntityDTO());
     }
 
     @PostMapping("/start")
-    public ResponseEntity<Mancala> start(){
-        return ResponseEntity.status(HttpStatus.CREATED).body(mancalaService.startGame());
+    public ResponseEntity<MancalaGameDTO> start(){
+        return ResponseEntity.status(HttpStatus.CREATED).body(mancalaService.startGame().toEntityDTO());
     }
 
     @DeleteMapping("/end")
-    public ResponseEntity<Mancala> end(){
+    public ResponseEntity<?> end(){
         mancalaService.endGame();
         return ResponseEntity.ok().build();
     }
 }
-
