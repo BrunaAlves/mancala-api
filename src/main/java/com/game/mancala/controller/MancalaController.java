@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.UUID;
 
 @RestController
@@ -23,10 +24,9 @@ public class MancalaController {
         return ResponseEntity.ok().body(mancalaGame.toEntityDTO());
     }
 
-    @GetMapping("/moves/{id}")
-    public ResponseEntity<MancalaGameDTO> getMoves(@PathVariable("id") UUID id){
-        MancalaGame mancalaGame = mancalaService.getMoves(id);
-        return ResponseEntity.ok().body(mancalaGame.toEntityDTO());
+    @PatchMapping("/actions/{id}")
+    public ResponseEntity<MancalaGameDTO> getActions(@PathVariable("id") UUID id){
+        return ResponseEntity.ok().body(mancalaService.getActions(id));
     }
 
     @PostMapping("/start")

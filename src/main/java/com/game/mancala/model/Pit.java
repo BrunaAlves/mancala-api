@@ -3,6 +3,7 @@ package com.game.mancala.model;
 import com.game.mancala.dto.PitDTO;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.UUID;
 
 @Getter

@@ -2,8 +2,6 @@ package com.game.mancala.model;
 
 import com.game.mancala.dto.MancalaGameDTO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 

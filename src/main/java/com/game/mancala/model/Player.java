@@ -1,6 +1,5 @@
 package com.game.mancala.model;
 
-import com.game.mancala.dto.MancalaGameDTO;
 import com.game.mancala.dto.PlayerDTO;
 import lombok.Getter;
 import lombok.Setter;
