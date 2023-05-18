@@ -16,6 +16,8 @@ public class MancalaService {
         return mancala;
     }
 
+    public List<Action> getGameActions() { return gameActions;}
+
     public MancalaGame startGame() {
         if(mancala != null ) throw new RuntimeException("A game is already running");
         this.mancala = new MancalaGame(List.of("player1", "player2"),6,6);
@@ -26,13 +28,15 @@ public class MancalaService {
         return mancala;
     }
 
-    public GameActionsDTO getActions(UUID id){
-        this.movePits(id);
-        return new GameActionsDTO(gameActions, mancala.toEntityDTO());
+    public void endGame() {
+        if(this.mancala == null) throw new RuntimeException("There is no game started");
+        this.mancala = null;
+        this.gameActions = null;
     }
 
     //TODO: improve function
-    private void movePits(UUID id){
+    public GameActionsDTO getActions(UUID id){
+        List<Action> actions = new ArrayList<>();
         Pit startPit = getStartPit(id);
 
         if(startPit.getStones() == 0) {
@@ -42,7 +46,7 @@ public class MancalaService {
         int pitIndex =  mancala.getCurrentPlayer().getPits().indexOf(startPit);
         int handStones = emptyPit(startPit);
         int playerIndex = mancala.getCurrentPlayerIndex();
-        Pit lastPitChecked = startPit;
+        Pit currentPit = startPit;
 
         while (handStones > 0){
             pitIndex ++;
@@ -55,34 +59,37 @@ public class MancalaService {
                 }
             }
 
-            Pit currentPit = mancala.getPlayers().get(playerIndex).getPits().get(pitIndex);
+            currentPit = mancala.getPlayers().get(playerIndex).getPits().get(pitIndex);
 
             if(currentPit.equals(mancala.getPlayers().get(playerIndex).getLargePit())) {
                 if(currentPit.equals(mancala.getCurrentPlayer().getLargePit())) {
                     currentPit.setStones(currentPit.getStones() + 1);
                     handStones --;
+                    actions.add(new MoveAction(startPit.getId(), currentPit.getId(),1, handStones));
                 }
             } else {
                 currentPit.setStones(currentPit.getStones() + 1);
                 handStones --;
+                actions.add(new MoveAction(startPit.getId(), currentPit.getId(),1, handStones));
 
-                if(handStones == 0 && currentPit.getStones() == 1) {
-                    capturesOwnAndOppositeStones(currentPit);
-                }
+//                if(handStones == 0 && currentPit.getStones() == 1) {
+//                    capturesOwnAndOppositeStones(currentPit);
+//                }
             }
-
-            this.gameActions.add(new MoveAction(lastPitChecked.getId(), currentPit.getId(),1, handStones));
-            lastPitChecked = currentPit;
         }
 
         Player winner = getWinner();
         System.out.println(winner);
 
-        if(findCurrentPlayerPitById(lastPitChecked.getId()).isPresent()) {
-            gameActions.add(new PlayAgainAction(mancala.getCurrentPlayer().getId()));
+        if(findCurrentPlayerPitById(currentPit.getId()).isPresent()) {
+            actions.add(new PlayAgainAction(mancala.getCurrentPlayer().getId()));
         } else {
             toggleTurn();
         }
+
+        actions.add(new NextPlayerAction(mancala.getCurrentPlayer().getId()));
+        gameActions.addAll(actions);
+        return new GameActionsDTO(actions, mancala.toEntityDTO());
 
     }
 
@@ -105,7 +112,7 @@ public class MancalaService {
         totalStoneLargePit += oppositePit.getStones();
         oppositePit.setStones(0);
 
-        gameActions.add(captureStoneAction);
+       // gameActions.add(captureStoneAction);
 
         mancala.getCurrentPlayer().getLargePit().setStones(totalStoneLargePit);
     }
@@ -137,12 +144,6 @@ public class MancalaService {
             }
         }
         return null;
-    }
-
-    public void endGame() {
-        if(this.mancala == null) throw new RuntimeException("There is no game started");
-        this.mancala = null;
-        this.gameActions = null;
     }
 
     private void setTurn(int index) {

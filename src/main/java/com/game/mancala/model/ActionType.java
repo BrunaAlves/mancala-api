@@ -4,5 +4,6 @@ enum ActionType {
     MOVE,
     WINNER,
     PLAY_AGAIN,
-    CAPTURE_STONES
+    CAPTURE_STONES,
+    NEXT_PLAYER
 }
