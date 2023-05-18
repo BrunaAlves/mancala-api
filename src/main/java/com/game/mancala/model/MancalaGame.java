@@ -2,27 +2,37 @@ package com.game.mancala.model;
 
 import com.game.mancala.dto.MancalaGameDTO;
 
-public class MancalaGame extends Mancala {
-    private Player currentPlayer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public MancalaGame(String firstPlayerUsername, String secondPlayerUsername, int numberOfPits, int numberOfStones) {
-        super(firstPlayerUsername, secondPlayerUsername, numberOfPits, numberOfStones);
+public class MancalaGame extends Mancala {
+    private int currentPlayerIndex;
+
+
+    public MancalaGame(List<String> playerUsernames, int numberOfPits, int numberOfStones) {
+        super(playerUsernames, numberOfPits, numberOfStones);
     }
 
     public Player getCurrentPlayer() {
-        return currentPlayer;
+        return this.getPlayers().get(this.currentPlayerIndex);
     }
 
-    public void setCurrentPlayer(Player currentPlayer) {
-        this.currentPlayer = currentPlayer;
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
     }
 
     public MancalaGameDTO toEntityDTO(){
+        Player currentPlayer = getCurrentPlayer();
         MancalaGameDTO mancalaGameDTO = new MancalaGameDTO();
         mancalaGameDTO.setNumberOfPits(super.getNumberOfPits());
-        mancalaGameDTO.setCurrentPlayerId(this.currentPlayer.getId());
-        mancalaGameDTO.setPlayer1(super.getPlayer1().toEntityDTO());
-        mancalaGameDTO.setPlayer2(super.getPlayer2().toEntityDTO());
+        mancalaGameDTO.setCurrentPlayerId(currentPlayer.getId());
+        mancalaGameDTO.setPlayers(this.getPlayers().stream().map(p -> p.toEntityDTO()).collect(Collectors.toList()));
         return mancalaGameDTO;
     }
 }

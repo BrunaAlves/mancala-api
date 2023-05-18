@@ -28,6 +28,7 @@ public class Player{
             this.pits.add(new Pit(this.username + ":" + i, numberOfStones));
 
         }
+        this.pits.add(this.largePit);
     }
 
     public PlayerDTO toEntityDTO(){
