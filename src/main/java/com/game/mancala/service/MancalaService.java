@@ -71,10 +71,6 @@ public class MancalaService {
                 currentPit.setStones(currentPit.getStones() + 1);
                 handStones --;
                 actions.add(new MoveAction(startPit.getId(), currentPit.getId(),1, handStones));
-
-//                if(handStones == 0 && currentPit.getStones() == 1) {
-//                    capturesOwnAndOppositeStones(currentPit);
-//                }
             }
         }
 
@@ -82,7 +78,12 @@ public class MancalaService {
         System.out.println(winner);
 
         if(findCurrentPlayerPitById(currentPit.getId()).isPresent()) {
-            actions.add(new PlayAgainAction(mancala.getCurrentPlayer().getId()));
+            if(currentPit.getStones() == 1 && !currentPit.equals(mancala.getCurrentPlayer().getLargePit())) {
+                actions.add(capturesOwnAndOppositeStones(currentPit));
+            } else {
+                actions.add(new PlayAgainAction(mancala.getCurrentPlayer().getId()));
+            }
+
         } else {
             toggleTurn();
         }
@@ -94,27 +95,30 @@ public class MancalaService {
     }
 
     //TODO: better name and improve function
-    private void capturesOwnAndOppositeStones(Pit currentPit) {
-        CaptureStoneAction captureStoneAction = new CaptureStoneAction();
-        captureStoneAction.setOwnPitId(currentPit.getId());
-        captureStoneAction.setOwnStone(currentPit.getStones());
-
+    private CaptureStoneAction capturesOwnAndOppositeStones(Pit currentPit) {
         int pitIndex =  mancala.getCurrentPlayer().getPits().indexOf(currentPit);
         int totalStoneLargePit = mancala.getCurrentPlayer().getLargePit().getStones() + currentPit.getStones();
-        currentPit.setStones(0);
 
-        int nextIndex = mancala.getCurrentPlayerIndex();
-        nextIndex ++;
+        int nextPlayerIndex = mancala.getCurrentPlayerIndex();
+        nextPlayerIndex ++;
+        if(nextPlayerIndex >= mancala.getPlayers().size()) {
+            nextPlayerIndex = 0;
+        }
 
-        Pit oppositePit = mancala.getPlayers().get(nextIndex).getPits().get(pitIndex);
-        captureStoneAction.setOppositePitId(oppositePit.getId());
-        captureStoneAction.setOppositeStone(oppositePit.getStones());
+        Pit oppositePit = mancala.getPlayers().get(nextPlayerIndex).getPits().get(mancala.getNumberOfPits() - 1 - pitIndex);
         totalStoneLargePit += oppositePit.getStones();
+
+
+        CaptureStoneAction captureStoneAction =
+                new CaptureStoneAction(currentPit.getStones(),
+                        oppositePit.getStones(),
+                        currentPit.getId(),
+                        oppositePit.getId());
+
+        currentPit.setStones(0);
         oppositePit.setStones(0);
-
-       // gameActions.add(captureStoneAction);
-
         mancala.getCurrentPlayer().getLargePit().setStones(totalStoneLargePit);
+        return captureStoneAction;
     }
 
     private Pit getStartPit(UUID id) {

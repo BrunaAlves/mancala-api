@@ -6,15 +6,11 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Getter
-@Setter
 public class CaptureStoneAction extends Action{
     private int ownStone;
     private int OppositeStone;
     private UUID ownPitId;
     private UUID oppositePitId;
-
-    public CaptureStoneAction() {
-    }
 
     public CaptureStoneAction(int ownStone, int oppositeStone, UUID ownPitId, UUID oppositePitId) {
         super.setActionType(ActionType.CAPTURE_STONES);
