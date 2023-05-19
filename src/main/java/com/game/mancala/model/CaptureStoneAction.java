@@ -6,17 +6,23 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Getter
-public class CaptureStoneAction extends Action{
-    private int ownStone;
-    private int OppositeStone;
+public class CaptureStoneAction extends Action {
+    private int removedOwnPitStonesQuantity;
+    private int removedOppositeStonesQuantity;
+    private int addedLargePitStonesQuantity;
     private UUID ownPitId;
     private UUID oppositePitId;
+    private UUID largePitId;
 
-    public CaptureStoneAction(int ownStone, int oppositeStone, UUID ownPitId, UUID oppositePitId) {
+    public CaptureStoneAction(int removedOwnPitStonesQuantity, int removedOppositeStonesQuantity,
+                              int addedLargePitStonesQuantity, UUID ownPitId,
+                              UUID oppositePitId, UUID largePitId) {
         super.setActionType(ActionType.CAPTURE_STONES);
-        this.ownStone = ownStone;
-        OppositeStone = oppositeStone;
+        this.removedOwnPitStonesQuantity = removedOwnPitStonesQuantity;
+        this.removedOppositeStonesQuantity = removedOppositeStonesQuantity;
+        this.addedLargePitStonesQuantity = addedLargePitStonesQuantity;
         this.ownPitId = ownPitId;
         this.oppositePitId = oppositePitId;
+        this.largePitId = largePitId;
     }
 }
