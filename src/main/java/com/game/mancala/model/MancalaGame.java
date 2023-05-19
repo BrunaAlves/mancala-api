@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 
 public class MancalaGame extends Mancala {
     private int currentPlayerIndex;
+    private boolean isGameOver;
 
 
     public MancalaGame(List<String> playerUsernames, int numberOfPits, int numberOfStones) {
         super(playerUsernames, numberOfPits, numberOfStones);
+        this.isGameOver = false;
     }
 
     public Player getCurrentPlayer() {
@@ -23,6 +25,14 @@ public class MancalaGame extends Mancala {
 
     public void setCurrentPlayerIndex(int currentPlayerIndex) {
         this.currentPlayerIndex = currentPlayerIndex;
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
     }
 
     public MancalaGameDTO toEntityDTO(){

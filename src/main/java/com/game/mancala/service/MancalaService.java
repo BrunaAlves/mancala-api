@@ -36,6 +36,8 @@ public class MancalaService {
 
     //TODO: improve function
     public GameActionsDTO getActions(UUID id){
+        if(mancala.isGameOver()) throw new RuntimeException("The game is over, please start a new one");
+
         List<Action> actions = new ArrayList<>();
         Pit startPit = getStartPit(id);
 
@@ -74,24 +76,47 @@ public class MancalaService {
             }
         }
 
-        Player winner = getWinner();
-        System.out.println(winner);
 
+        //Capture all stones
         if(findCurrentPlayerPitById(currentPit.getId()).isPresent()) {
             if(currentPit.getStones() == 1 && !currentPit.equals(mancala.getCurrentPlayer().getLargePit())) {
                 actions.add(capturesOwnAndOppositeStones(currentPit));
             } else {
-                actions.add(new PlayAgainAction(mancala.getCurrentPlayer().getId()));
+                if(!isGameOver()) {
+                    actions.add(new PlayAgainAction(mancala.getCurrentPlayer().getId()));
+                }
             }
 
         } else {
-            toggleTurn();
+            if(isGameOver()) {
+                actions.add(new GameOverAction(mancala.getPlayers()));
+                mancala.setGameOver(true);
+                actions.addAll(findWinner());
+
+            } else {
+                toggleTurn();
+                actions.add(new NextPlayerAction(mancala.getCurrentPlayer().getId()));
+            }
+
         }
 
-        actions.add(new NextPlayerAction(mancala.getCurrentPlayer().getId()));
         gameActions.addAll(actions);
         return new GameActionsDTO(actions, mancala.toEntityDTO());
 
+    }
+
+    private boolean isGameOver() {
+        for (Player player : mancala.getPlayers()) {
+            int sum = player.getPits().stream()
+                    .filter(x -> !x.equals(player.getLargePit()))
+                    .mapToInt(x -> x.getStones()).sum();
+
+            if(sum == 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //TODO: better name and improve function
@@ -99,15 +124,10 @@ public class MancalaService {
         int pitIndex =  mancala.getCurrentPlayer().getPits().indexOf(currentPit);
         int totalStoneLargePit = mancala.getCurrentPlayer().getLargePit().getStones() + currentPit.getStones();
 
-        int nextPlayerIndex = mancala.getCurrentPlayerIndex();
-        nextPlayerIndex ++;
-        if(nextPlayerIndex >= mancala.getPlayers().size()) {
-            nextPlayerIndex = 0;
-        }
+        Pit oppositePit = mancala.getPlayers()
+                .get(this.findOpponentIndex()).getPits().get(mancala.getNumberOfPits() - 1 - pitIndex);
 
-        Pit oppositePit = mancala.getPlayers().get(nextPlayerIndex).getPits().get(mancala.getNumberOfPits() - 1 - pitIndex);
         totalStoneLargePit += oppositePit.getStones();
-
 
         CaptureStoneAction captureStoneAction =
                 new CaptureStoneAction(currentPit.getStones(),
@@ -138,16 +158,37 @@ public class MancalaService {
                 .findFirst();
     }
 
-    private Player getWinner() {
-        for (Player player : mancala.getPlayers()) {
-            int sum = player.getPits().stream().filter(x -> !x.equals(player.getLargePit())).mapToInt(x -> x.getStones()).sum();
+    private List<Action> findWinner() {
+        List<Action> actions = new ArrayList<>();
+        Player opponent = mancala.getPlayers().get(this.findOpponentIndex());
 
-            if(sum == 0) {
-                this.gameActions.add(new WinnerAction(player.getId()));
-                return player;
-            }
+        for (int i = opponent.getPits().size() - 2; i >= 0; i--) {
+            Pit pit = opponent.getPits().get(i);
+            actions.add(new MoveAction(pit.getId(), opponent.getLargePit().getId(), pit.getStones(), pit.getStones()));
+            opponent.getLargePit().setStones(opponent.getLargePit().getStones() + pit.getStones());
+            pit.setStones(0);
         }
-        return null;
+
+        Player player1 = mancala.getPlayers().get(0);
+        Player player2 = mancala.getPlayers().get(1);
+
+        if(player1.getLargePit().getStones() > player2.getLargePit().getStones()) {
+            actions.add(new WinnerAction(player1.getId()));
+        } else {
+            actions.add(new WinnerAction(player2.getId()));
+        }
+
+        return actions;
+    }
+
+    private int findOpponentIndex() {
+        int opponentPlayerIndex = mancala.getCurrentPlayerIndex();
+        opponentPlayerIndex ++;
+        if(opponentPlayerIndex >= mancala.getPlayers().size()) {
+            opponentPlayerIndex = 0;
+        }
+
+        return  opponentPlayerIndex;
     }
 
     private void setTurn(int index) {
@@ -155,12 +196,7 @@ public class MancalaService {
     }
 
     private void toggleTurn() {
-        int nextIndex = mancala.getCurrentPlayerIndex();
-        nextIndex ++;
-        if(nextIndex >= mancala.getPlayers().size()) {
-            nextIndex = 0;
-        }
-        setTurn(nextIndex);
+        setTurn(this.findOpponentIndex());
     }
 
     private int emptyPit(Pit pit){
