@@ -3,6 +3,8 @@ package com.game.mancala.service;
 import com.game.mancala.dto.GameActionsDTO;
 import com.game.mancala.exception.MancalaException;
 import com.game.mancala.model.*;
+import com.game.mancala.repository.ActionDao;
+import com.game.mancala.repository.MancalaGameDao;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -10,8 +12,8 @@ import java.util.*;
 @Service
 public class MancalaService {
 
-    private static MancalaGame mancala = null;
-    private static List<Action> gameActions = null;
+    private static MancalaGameDao mancalaGameDao = new MancalaGameDao();
+    private static ActionDao actionDao = new ActionDao();
 
     private static final String MESSAGE_GAME_RUNNING = "A game is already running";
     private static final String MESSAGE_NO_GAME_STARTED = "There is no game started";
@@ -20,29 +22,33 @@ public class MancalaService {
     private static final String MESSAGE_NO_PIT_FOR_PLAYER_ID = "There is no pit with uuid %s for playerId %s";
 
     public MancalaGame get(){
-        return mancala;
+        return mancalaGameDao.getGame().orElseThrow(() -> {throw new MancalaException(MESSAGE_NO_GAME_STARTED);});
+
     }
 
-    public List<Action> getGameActions() { return gameActions;}
+    public List<Action> getGameActions() { return actionDao.getAll();}
 
     public MancalaGame startGame() {
-        if(mancala != null ) throw new MancalaException(MESSAGE_GAME_RUNNING);
-        this.mancala = new MancalaGame(List.of("player1", "player2"),6,6);
-        this.gameActions = new ArrayList<>();
+        if(mancalaGameDao.getGame().isPresent()) throw new MancalaException(MESSAGE_GAME_RUNNING);
+        mancalaGameDao = new MancalaGameDao(new MancalaGame(List.of("player1", "player2"),6,1));
+        this.actionDao = new ActionDao();
+
+        MancalaGame mancala = this.get();
 
         Random random = new Random();
         setTurn(random.nextInt(mancala.getPlayers().size()));
-        return mancala;
+        return mancalaGameDao.getGame().get();
     }
 
     public void endGame() {
-        if(this.mancala == null) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
-        this.mancala = null;
-        this.gameActions = null;
+        if(mancalaGameDao.getGame().isEmpty()) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
+        this.mancalaGameDao = new MancalaGameDao();
+        this.actionDao = new ActionDao();
     }
 
     //TODO: improve function
     public GameActionsDTO getActions(UUID id){
+        MancalaGame mancala = this.get();
         if(mancala.isGameOver()) throw new MancalaException(MESSAGE_GAME_OVER);
 
         List<Action> actions = new ArrayList<>();
@@ -107,12 +113,14 @@ public class MancalaService {
             }
         }
 
-        gameActions.addAll(actions);
+        mancalaGameDao.save(mancala);
+        actionDao.addAll(actions);
         return new GameActionsDTO(actions, mancala.toEntityDTO());
 
     }
 
     private boolean isGameOver() {
+        MancalaGame mancala = this.get();
         for (Player player : mancala.getPlayers()) {
             int sum = player.getPits().stream()
                     .filter(x -> !x.equals(player.getLargePit()))
@@ -128,6 +136,7 @@ public class MancalaService {
 
     //TODO: better name and improve function
     private CaptureStoneAction capturesOwnAndOppositeStones(Pit currentPit) {
+        MancalaGame mancala = this.get();
         int pitIndex =  mancala.getCurrentPlayer().getPits().indexOf(currentPit);
         int totalStonesToAdd =  currentPit.getStones();
 
@@ -148,10 +157,12 @@ public class MancalaService {
         currentPit.setStones(0);
         oppositePit.setStones(0);
         mancala.getCurrentPlayer().getLargePit().setStones(totalStoneLargePit);
+        mancalaGameDao.save(mancala);
         return captureStoneAction;
     }
 
     private Pit getStartPit(UUID id) {
+        MancalaGame mancala = this.get();
         return findCurrentPlayerPitById(id)
                 .orElseThrow(() ->
                         new MancalaException(String.format(MESSAGE_NO_PIT_FOR_PLAYER_ID,
@@ -161,6 +172,7 @@ public class MancalaService {
     }
 
     private Optional<Pit> findCurrentPlayerPitById(UUID id) {
+        MancalaGame mancala = this.get();
         return mancala.getCurrentPlayer()
                 .getPits()
                 .stream()
@@ -169,6 +181,7 @@ public class MancalaService {
     }
 
     private List<Action> findWinner() {
+        MancalaGame mancala = this.get();
         List<Action> actions = new ArrayList<>();
         Player opponent = mancala.getPlayers().get(this.findOpponentIndex());
 
@@ -191,11 +204,12 @@ public class MancalaService {
         } else {
             actions.add(new WinnerAction(player2.getId()));
         }
-
+        mancalaGameDao.save(mancala);
         return actions;
     }
 
     private int findOpponentIndex() {
+        MancalaGame mancala = this.get();
         int opponentPlayerIndex = mancala.getCurrentPlayerIndex();
         opponentPlayerIndex ++;
         if(opponentPlayerIndex >= mancala.getPlayers().size()) {
@@ -206,7 +220,9 @@ public class MancalaService {
     }
 
     private void setTurn(int index) {
+        MancalaGame mancala = this.get();
         mancala.setCurrentPlayerIndex(index);
+        mancalaGameDao.save(mancala);
     }
 
     private void toggleTurn() {
