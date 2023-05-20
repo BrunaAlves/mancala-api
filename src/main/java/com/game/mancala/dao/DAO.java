@@ -1,8 +1,8 @@
-package com.game.mancala.repository;
+package com.game.mancala.dao;
 
 import java.util.List;
 
-public interface Dao<T> {
+public interface DAO<T> {
 
     List<T> getAll();
 

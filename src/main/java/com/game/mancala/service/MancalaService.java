@@ -3,8 +3,8 @@ package com.game.mancala.service;
 import com.game.mancala.dto.GameActionsDTO;
 import com.game.mancala.exception.MancalaException;
 import com.game.mancala.model.*;
-import com.game.mancala.repository.ActionDao;
-import com.game.mancala.repository.MancalaGameDao;
+import com.game.mancala.dao.ActionDAO;
+import com.game.mancala.dao.MancalaGameDAO;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,8 +12,8 @@ import java.util.*;
 @Service
 public class MancalaService {
 
-    private static MancalaGameDao mancalaGameDao = new MancalaGameDao();
-    private static ActionDao actionDao = new ActionDao();
+    private static MancalaGameDAO mancalaGameDAO = new MancalaGameDAO();
+    private static ActionDAO actionDAO = new ActionDAO();
 
     private static final String MESSAGE_GAME_RUNNING = "A game is already running";
     private static final String MESSAGE_NO_GAME_STARTED = "There is no game started";
@@ -22,28 +22,28 @@ public class MancalaService {
     private static final String MESSAGE_NO_PIT_FOR_PLAYER_ID = "There is no pit with uuid %s for playerId %s";
 
     public MancalaGame get(){
-        return mancalaGameDao.getGame().orElseThrow(() -> {throw new MancalaException(MESSAGE_NO_GAME_STARTED);});
+        return mancalaGameDAO.getGame().orElseThrow(() -> {throw new MancalaException(MESSAGE_NO_GAME_STARTED);});
 
     }
 
-    public List<Action> getGameActions() { return actionDao.getAll();}
+    public List<Action> getGameActions() { return actionDAO.getAll();}
 
     public MancalaGame startGame() {
-        if(mancalaGameDao.getGame().isPresent()) throw new MancalaException(MESSAGE_GAME_RUNNING);
-        mancalaGameDao = new MancalaGameDao(new MancalaGame(List.of("player1", "player2"),6,1));
-        this.actionDao = new ActionDao();
+        if(mancalaGameDAO.getGame().isPresent()) throw new MancalaException(MESSAGE_GAME_RUNNING);
+        mancalaGameDAO = new MancalaGameDAO(new MancalaGame(List.of("player1", "player2"),6,6));
+        this.actionDAO = new ActionDAO();
 
         MancalaGame mancala = this.get();
 
         Random random = new Random();
         setTurn(random.nextInt(mancala.getPlayers().size()));
-        return mancalaGameDao.getGame().get();
+        return mancalaGameDAO.getGame().get();
     }
 
     public void endGame() {
-        if(mancalaGameDao.getGame().isEmpty()) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
-        this.mancalaGameDao = new MancalaGameDao();
-        this.actionDao = new ActionDao();
+        if(mancalaGameDAO.getGame().isEmpty()) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
+        this.mancalaGameDAO = new MancalaGameDAO();
+        this.actionDAO = new ActionDAO();
     }
 
     //TODO: improve function
@@ -113,8 +113,8 @@ public class MancalaService {
             }
         }
 
-        mancalaGameDao.save(mancala);
-        actionDao.addAll(actions);
+        mancalaGameDAO.save(mancala);
+        actionDAO.addAll(actions);
         return new GameActionsDTO(actions, mancala.toEntityDTO());
 
     }
@@ -157,7 +157,7 @@ public class MancalaService {
         currentPit.setStones(0);
         oppositePit.setStones(0);
         mancala.getCurrentPlayer().getLargePit().setStones(totalStoneLargePit);
-        mancalaGameDao.save(mancala);
+        mancalaGameDAO.save(mancala);
         return captureStoneAction;
     }
 
@@ -204,7 +204,7 @@ public class MancalaService {
         } else {
             actions.add(new WinnerAction(player2.getId()));
         }
-        mancalaGameDao.save(mancala);
+        mancalaGameDAO.save(mancala);
         return actions;
     }
 
@@ -222,7 +222,7 @@ public class MancalaService {
     private void setTurn(int index) {
         MancalaGame mancala = this.get();
         mancala.setCurrentPlayerIndex(index);
-        mancalaGameDao.save(mancala);
+        mancalaGameDAO.save(mancala);
     }
 
     private void toggleTurn() {

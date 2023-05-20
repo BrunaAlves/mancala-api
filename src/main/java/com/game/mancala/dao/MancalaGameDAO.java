@@ -1,18 +1,18 @@
-package com.game.mancala.repository;
+package com.game.mancala.dao;
 
 import com.game.mancala.model.MancalaGame;
 
 import java.util.List;
 import java.util.Optional;
 
-public class MancalaGameDao implements Dao<MancalaGame> {
+public class MancalaGameDAO implements DAO<MancalaGame> {
 
     private MancalaGame mancalaGame = null;
 
-    public MancalaGameDao() {
+    public MancalaGameDAO() {
     }
 
-    public MancalaGameDao(MancalaGame mancalaGame) {
+    public MancalaGameDAO(MancalaGame mancalaGame) {
         this.mancalaGame = mancalaGame;
     }
 

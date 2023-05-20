@@ -1,10 +1,10 @@
-package com.game.mancala.repository;
+package com.game.mancala.dao;
 
 import com.game.mancala.model.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActionDao implements Dao<Action> {
+public class ActionDAO implements DAO<Action> {
     private List<Action> actions = new ArrayList<>();
 
     @Override
