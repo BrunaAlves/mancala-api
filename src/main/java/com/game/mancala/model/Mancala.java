@@ -12,8 +12,10 @@ public class Mancala {
     private List<Player> players;
 
     public Mancala(List<String> playersUsername, int numberOfPits, int numberOfStones) {
-        if(numberOfPits == 0) throw new RuntimeException("Pits should be bigger than 0");
-        if(numberOfStones == 0) throw new RuntimeException("Stones should be bigger than 0");
+        if(numberOfPits <= 0) throw new RuntimeException("Pits should be bigger than 0");
+        if(numberOfStones <= 0) throw new RuntimeException("Stones should be bigger than 0");
+        if(numberOfPits >= 12) throw new RuntimeException("Pits should be less than 12");
+        if(numberOfStones >= 12) throw new RuntimeException("Stones should be less than 12");
         this.numberOfPits = numberOfPits;
         this.numberOfStones = numberOfStones;
 

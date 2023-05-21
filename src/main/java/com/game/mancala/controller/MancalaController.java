@@ -28,7 +28,8 @@ public class MancalaController {
 
     @PostMapping("/start")
     public ResponseEntity<MancalaGameDTO> start(){
-        return ResponseEntity.status(HttpStatus.CREATED).body(mancalaService.startGame().toEntityDTO());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(mancalaService.startGame(List.of("player1", "player2"), 6, 6).toEntityDTO());
     }
 
     @DeleteMapping("/end")

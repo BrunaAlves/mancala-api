@@ -28,9 +28,9 @@ public class MancalaService {
 
     public List<Action> getGameActions() { return actionDAO.getAll();}
 
-    public MancalaGame startGame() {
-        if(mancalaGameDAO.getGame().isPresent()) throw new MancalaException(MESSAGE_GAME_RUNNING);
-        mancalaGameDAO = new MancalaGameDAO(new MancalaGame(List.of("player1", "player2"),6,6));
+    public MancalaGame startGame(List<String> listOfPlayersUsername, int numberOfPits, int numberOfStones) {
+        if(isGameStarted()) throw new MancalaException(MESSAGE_GAME_RUNNING);
+        mancalaGameDAO = new MancalaGameDAO(new MancalaGame(listOfPlayersUsername,numberOfPits,numberOfStones));
         this.actionDAO = new ActionDAO();
 
         MancalaGame mancala = this.get();
@@ -40,8 +40,12 @@ public class MancalaService {
         return mancalaGameDAO.getGame().get();
     }
 
+    public boolean isGameStarted(){
+        return mancalaGameDAO.getGame().isPresent();
+    }
+
     public void endGame() {
-        if(mancalaGameDAO.getGame().isEmpty()) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
+        if(!isGameStarted()) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
         this.mancalaGameDAO = new MancalaGameDAO();
         this.actionDAO = new ActionDAO();
     }
