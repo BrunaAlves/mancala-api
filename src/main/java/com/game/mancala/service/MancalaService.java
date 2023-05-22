@@ -28,13 +28,11 @@ public class MancalaService {
     private static final String MESSAGE_NO_PIT_STONE = "There is no stones on pit %s";
     private static final String MESSAGE_NO_PIT_FOR_PLAYER_ID = "There is no pit with uuid %s for playerId %s";
 
-    public MancalaGame get(){
+    public MancalaGame getGame(){
         return mancalaGameDAO.getGame()
                 .orElseThrow(() -> {throw new MancalaException(MESSAGE_NO_GAME_STARTED);});
 
     }
-
-    public List<Action> getGameActions() { return actionDAO.getAll();}
 
     public MancalaGame startGame(List<String> listOfPlayersUsername, int numberOfPits, int numberOfStones) {
         if(isGameStarted()) throw new MancalaException(MESSAGE_GAME_RUNNING);
@@ -52,13 +50,13 @@ public class MancalaService {
 
     public void endGame() {
         if(!isGameStarted()) throw new MancalaException(MESSAGE_NO_GAME_STARTED);
-        this.mancalaGameDAO.delete(this.get());
-        this.actionDAO = null;
+        this.mancalaGameDAO.delete(this.getGame());
+        this.actionDAO.deleteAll();
     }
 
     //TODO: improve function
     public GameActionsDTO getActions(UUID id){
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         if(mancala.isGameOver()) throw new MancalaException(MESSAGE_GAME_OVER);
 
         List<Action> actions = new ArrayList<>();
@@ -129,8 +127,10 @@ public class MancalaService {
 
     }
 
+    public List<Action> getAllActions() { return actionDAO.getAll();}
+
     private boolean isGameOver() {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         for (Player player : mancala.getPlayers()) {
             int sum = player.getPits().stream()
                     .filter(x -> !x.equals(player.getLargePit()))
@@ -146,7 +146,7 @@ public class MancalaService {
 
     //TODO: better name and improve function
     private CaptureStoneAction capturesOwnAndOppositeStones(Pit currentPit) {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         int pitIndex =  mancala.getCurrentPlayer().getPits().indexOf(currentPit);
         int totalStonesToAdd =  currentPit.getStones();
 
@@ -172,7 +172,7 @@ public class MancalaService {
     }
 
     private Pit getStartPit(UUID id) {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         return findCurrentPlayerPitById(id)
                 .orElseThrow(() ->
                         new MancalaException(String.format(MESSAGE_NO_PIT_FOR_PLAYER_ID,
@@ -182,7 +182,7 @@ public class MancalaService {
     }
 
     private Optional<Pit> findCurrentPlayerPitById(UUID id) {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         return mancala.getCurrentPlayer()
                 .getPits()
                 .stream()
@@ -191,7 +191,7 @@ public class MancalaService {
     }
 
     private List<Action> findWinner() {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         List<Action> actions = new ArrayList<>();
         Player opponent = mancala.getPlayers().get(this.findOpponentIndex());
 
@@ -219,7 +219,7 @@ public class MancalaService {
     }
 
     private int findOpponentIndex() {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         int opponentPlayerIndex = mancala.getCurrentPlayerIndex();
         opponentPlayerIndex ++;
         if(opponentPlayerIndex >= mancala.getPlayers().size()) {
@@ -230,7 +230,7 @@ public class MancalaService {
     }
 
     private void setTurn(int index) {
-        MancalaGame mancala = this.get();
+        MancalaGame mancala = this.getGame();
         mancala.setCurrentPlayerIndex(index);
         mancalaGameDAO.save(mancala);
     }

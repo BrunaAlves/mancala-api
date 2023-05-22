@@ -21,7 +21,7 @@ public class MancalaController {
 
     @GetMapping
     public ResponseEntity<MancalaGameDTO> getGame(){
-        MancalaGame mancalaGame = mancalaService.get();
+        MancalaGame mancalaGame = mancalaService.getGame();
         if(mancalaGame == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         return ResponseEntity.ok().body(mancalaGame.toEntityDTO());
     }
@@ -40,7 +40,7 @@ public class MancalaController {
 
     @GetMapping("/actions")
     public ResponseEntity<List<Action>> getActions(){
-        return ResponseEntity.ok().body(mancalaService.getGameActions());
+        return ResponseEntity.ok().body(mancalaService.getAllActions());
     }
 
     @PatchMapping("/actions/{id}")

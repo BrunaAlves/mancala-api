@@ -4,7 +4,7 @@ import com.game.mancala.model.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActionDAO implements IDAO<Action> {
+public class ActionDAO implements IActionDAO {
     private List<Action> actions = new ArrayList<>();
 
     @Override
@@ -23,8 +23,14 @@ public class ActionDAO implements IDAO<Action> {
 
     }
 
-    public void addAll(List<Action> actions) {
+    @Override
+    public List<Action> addAll(List<Action> actions) {
         this.actions.addAll(actions);
+        return actions;
     }
 
+    @Override
+    public void deleteAll() {
+        this.actions = new ArrayList<>();
+    }
 }

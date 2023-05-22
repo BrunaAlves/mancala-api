@@ -3,6 +3,7 @@ package com.game.mancala.service;
 import com.game.mancala.dao.IMancalaGameDAO;
 import com.game.mancala.dao.MancalaGameDAO;
 import com.game.mancala.exception.MancalaException;
+import com.game.mancala.model.MancalaGame;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
@@ -34,7 +35,34 @@ public class MancalaServiceTest {
     }
 
     @Test
-    public void should_throwException_when_numberOfPitsIsLessAndEqualThanZero() {
+    public void should_returnGame_when_getGame() {
+        //given
+        mancalaService.startGame(Arrays.asList("p1", "p2"), 6, 6);
+
+        //when
+        MancalaGame mancalaGame = mancalaService.getGame();
+
+        //then
+        Assertions.assertNotEquals(null, mancalaGame);
+        Assertions.assertTrue(mancalaGame instanceof MancalaGame);
+    }
+
+    @Test
+    public void should_throwException_when_getGameNotStarted() {
+        //when
+        MancalaException exception = assertThrows(MancalaException.class, () -> {
+            mancalaService.getGame();
+        });
+
+        String expectedMessage = "There is no game started";
+        String actualMessage = exception.getMessage();
+
+        //then
+        Assertions.assertTrue(actualMessage.equals(expectedMessage));
+    }
+
+    @Test
+    public void should_throwException_when_numberOfPitsIsLessOrEqualThanZero() {
         //when
         MancalaException exception = assertThrows(MancalaException.class, () -> {
             mancalaService.startGame(Arrays.asList("p1", "p2"), 0, 6);
@@ -48,7 +76,7 @@ public class MancalaServiceTest {
     }
 
     @Test
-    public void should_throwException_when_numberOfStonesIsLessAndEqualThanZero() {
+    public void should_throwException_when_numberOfStonesIsLessOrEqualThanZero() {
         //when
         MancalaException exception = assertThrows(MancalaException.class, () -> {
             mancalaService.startGame(Arrays.asList("p1", "p2"), 6, 0);
@@ -158,7 +186,22 @@ public class MancalaServiceTest {
     }
 
     @Test
-    public void should_endGameAndThrowException_when_gameHasStarted() {
+    public void should_returnFalse_when_gameIsNotYetStarted() {
+        //assert
+        Assertions.assertFalse(mancalaService.isGameStarted());
+    }
+
+    @Test
+    public void should_returnTrue_when_gameIsNotAlreadyStarted() {
+        //given
+        mancalaService.startGame(Arrays.asList("p1", "p2"), 6, 6);
+
+        //assert
+        Assertions.assertTrue(mancalaService.isGameStarted());
+    }
+
+    @Test
+    public void should_endGame_when_gameIsRunning() {
         //given
         mancalaService.startGame(Arrays.asList("p1", "p2"), 6, 6);
 
@@ -167,13 +210,30 @@ public class MancalaServiceTest {
 
         //then
         MancalaException exception = assertThrows(MancalaException.class, () -> {
-            mancalaService.get();
+            mancalaService.getGame();
+        });
+
+        String expectedMessage = "There is no game started";
+        String actualMessage = exception.getMessage();
+        Assertions.assertTrue(actualMessage.equals(expectedMessage));
+    }
+
+    @Test
+    public void should_throwException_when_gameHasAlreadyEnded() {
+        //given
+        mancalaService.startGame(Arrays.asList("p1", "p2"), 6, 6);
+
+        //when
+        mancalaService.endGame();
+
+        //then
+        MancalaException exception = assertThrows(MancalaException.class, () -> {
+            mancalaService.getGame();
         });
 
         String expectedMessage = "There is no game started";
         String actualMessage = exception.getMessage();
 
-        //then
         Assertions.assertTrue(actualMessage.equals(expectedMessage));
     }
 
