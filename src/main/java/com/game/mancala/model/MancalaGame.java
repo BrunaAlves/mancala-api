@@ -9,7 +9,6 @@ public class MancalaGame extends Mancala {
     private int currentPlayerIndex;
     private boolean isGameOver;
 
-
     public MancalaGame(List<String> playerUsernames, int numberOfPits, int numberOfStones) {
         super(playerUsernames, numberOfPits, numberOfStones);
         this.isGameOver = false;

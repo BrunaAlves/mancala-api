@@ -2,10 +2,12 @@ package com.game.mancala.dao;
 
 import java.util.List;
 
-public interface DAO<T> {
+public interface IDAO<T> {
 
     List<T> getAll();
 
-    void save(T t);
+    T save(T t);
+
+    void delete(T t);
 
 }
