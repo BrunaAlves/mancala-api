@@ -1,6 +1,6 @@
 package com.game.mancala.model;
 
-enum ActionType {
+public enum ActionType {
     MOVE,
     WINNER,
     PLAY_AGAIN,

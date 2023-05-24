@@ -5,7 +5,6 @@ import com.game.mancala.dto.GameActionsDTO;
 import com.game.mancala.exception.MancalaException;
 import com.game.mancala.model.*;
 import com.game.mancala.dao.ActionDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,7 +14,6 @@ public class MancalaService {
 
     private ActionDAO actionDAO;
 
-    @Autowired
     private IMancalaGameDAO mancalaGameDAO;
 
     public MancalaService(IMancalaGameDAO mancalaGameDAO) {
@@ -54,11 +52,8 @@ public class MancalaService {
         this.actionDAO.deleteAll();
     }
 
-    //TODO: improve function
     public GameActionsDTO getActions(UUID id){
         MancalaGame mancala = this.getGame();
-        if(mancala.isGameOver()) throw new MancalaException(MESSAGE_GAME_OVER);
-
         List<Action> actions = new ArrayList<>();
         Pit startPit = getStartPit(id);
 
