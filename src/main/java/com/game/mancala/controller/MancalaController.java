@@ -1,5 +1,6 @@
 package com.game.mancala.controller;
 
+import com.game.mancala.dto.GameActionsDTO;
 import com.game.mancala.dto.MancalaGameDTO;
 import com.game.mancala.model.Action;
 import com.game.mancala.model.MancalaGame;
@@ -45,6 +46,8 @@ public class MancalaController {
 
     @PatchMapping("/actions/{id}")
     public ResponseEntity<MancalaGameDTO> patchActions(@PathVariable("id") UUID id){
-        return ResponseEntity.ok().body(mancalaService.getActions(id));
+        List<Action> actions = mancalaService.getActions(id);
+        MancalaGame mancalaGame = mancalaService.getGame();
+        return ResponseEntity.ok().body(new GameActionsDTO(actions, mancalaGame.toEntityDTO()));
     }
 }

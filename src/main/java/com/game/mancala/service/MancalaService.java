@@ -1,13 +1,13 @@
 package com.game.mancala.service;
 
 import com.game.mancala.dao.IMancalaGameDAO;
-import com.game.mancala.dto.GameActionsDTO;
 import com.game.mancala.exception.MancalaException;
 import com.game.mancala.model.*;
 import com.game.mancala.dao.ActionDAO;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MancalaService {
@@ -22,7 +22,6 @@ public class MancalaService {
 
     private static final String MESSAGE_GAME_RUNNING = "A game is already running";
     private static final String MESSAGE_NO_GAME_STARTED = "There is no game started";
-    private static final String MESSAGE_GAME_OVER = "The game is over, please start a new one";
     private static final String MESSAGE_NO_PIT_STONE = "There is no stones on pit %s";
     private static final String MESSAGE_NO_PIT_FOR_PLAYER_ID = "There is no pit with uuid %s for playerId %s";
 
@@ -52,7 +51,7 @@ public class MancalaService {
         this.actionDAO.deleteAll();
     }
 
-    public GameActionsDTO getActions(UUID id){
+    public List<Action> getActions(UUID id){
         MancalaGame mancala = this.getGame();
         List<Action> actions = new ArrayList<>();
         Pit startPit = getStartPit(id);
@@ -118,8 +117,7 @@ public class MancalaService {
 
         mancalaGameDAO.save(mancala);
         actionDAO.addAll(actions);
-        return new GameActionsDTO(actions, mancala.toEntityDTO());
-
+        return actions;
     }
 
     public List<Action> getAllActions() { return actionDAO.getAll();}
@@ -135,7 +133,6 @@ public class MancalaService {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -188,27 +185,33 @@ public class MancalaService {
     private List<Action> findWinner() {
         MancalaGame mancala = this.getGame();
         List<Action> actions = new ArrayList<>();
-        Player opponent = mancala.getPlayers().get(this.findOpponentIndex());
 
-        for (int i = opponent.getPits().size() - 2; i >= 0; i--) {
-            Pit pit = opponent.getPits().get(i);
-            if(pit.getStones() > 0) {
-                actions.add(new MoveAction(pit.getId(), opponent.getLargePit().getId(), pit.getStones(), pit.getStones()));
-                opponent.getLargePit().setStones(opponent.getLargePit().getStones() + pit.getStones());
-                pit.setStones(0);
+        for (Player player : mancala.getPlayers()) {
+            for (int i = 0; i <= player.getPits().size() - 2; i++) {
+                Pit pit = player.getPits().get(i);
+                if(pit.getStones() > 0) {
+                    actions.add(new MoveAction(pit.getId(), player.getLargePit().getId(), pit.getStones(), pit.getStones()));
+                    player.getLargePit().setStones(player.getLargePit().getStones() + pit.getStones());
+                    pit.setStones(0);
+                }
             }
         }
 
-        //add a for
+        List<Player> sortedWinners = mancala.getPlayers()
+                .stream()
+                .sorted((a, b) -> a.getLargePit().getStones() > b.getLargePit().getStones() ? -1 : 1)
+                .collect(Collectors.toList());
+        List<Player> winners = sortedWinners
+                .stream()
+                .filter(x -> x.getLargePit().getStones() == sortedWinners.get(0).getLargePit().getStones())
+                .collect(Collectors.toList());
 
-        Player player1 = mancala.getPlayers().get(0);
-        Player player2 = mancala.getPlayers().get(1);
-
-        if(player1.getLargePit().getStones() > player2.getLargePit().getStones()) {
-            actions.add(new WinnerAction(player1.getId()));
-        } else {
-            actions.add(new WinnerAction(player2.getId()));
+        if(winners.size() == 1){
+            actions.add(new WinnerAction(winners.get(0).getId()));
+        }else{
+            actions.add(new TieAction(winners.stream().map(x -> x.getId()).collect(Collectors.toList())));
         }
+
         mancalaGameDAO.save(mancala);
         return actions;
     }
