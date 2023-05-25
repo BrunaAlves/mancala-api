@@ -9,9 +9,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class MancalaGameDTO {
-    int numberOfPits;
-    List<PlayerDTO> players;
-
-    UUID currentPlayerId;
+    private int numberOfPits;
+    private List<PlayerDTO> players;
+    private UUID currentPlayerId;
 
 }

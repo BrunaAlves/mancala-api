@@ -2,8 +2,6 @@ package com.game.mancala.dao;
 
 import com.game.mancala.model.MancalaGame;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -16,11 +14,6 @@ public class MancalaGameDAO implements IMancalaGameDAO {
 
     public MancalaGameDAO(MancalaGame mancalaGame) {
         this.mancalaGame = mancalaGame;
-    }
-
-    @Override
-    public List<MancalaGame> getAll() {
-        return null;
     }
 
     @Override

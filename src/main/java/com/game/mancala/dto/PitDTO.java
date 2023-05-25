@@ -8,7 +8,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class PitDTO {
-    UUID id;
-    String name;
-    int stones;
+    private UUID id;
+    private String name;
+    private int stones;
 }

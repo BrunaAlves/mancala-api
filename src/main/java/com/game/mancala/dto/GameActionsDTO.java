@@ -12,9 +12,9 @@ public class GameActionsDTO extends MancalaGameDTO{
     private List<Action> actions;
 
     public GameActionsDTO(List<Action> actions, MancalaGameDTO mancalaGameDTO) {
-        super.currentPlayerId = mancalaGameDTO.currentPlayerId;
-        super.numberOfPits = mancalaGameDTO.numberOfPits;
-        this.players = mancalaGameDTO.getPlayers();
+        super.setCurrentPlayerId(mancalaGameDTO.getCurrentPlayerId());
+        super.setNumberOfPits(mancalaGameDTO.getNumberOfPits());
+        super.setPlayers(mancalaGameDTO.getPlayers());
         this.actions = actions;
     }
 }

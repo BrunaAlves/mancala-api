@@ -1,7 +1,6 @@
 package com.game.mancala.model;
 
 import com.game.mancala.dto.MancalaGameDTO;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class MancalaGame extends Mancala {
     }
 
     public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
+        return this.currentPlayerIndex;
     }
 
     public void setCurrentPlayerIndex(int currentPlayerIndex) {
@@ -27,11 +26,11 @@ public class MancalaGame extends Mancala {
     }
 
     public boolean isGameOver() {
-        return isGameOver;
+        return this.isGameOver;
     }
 
     public void setGameOver(boolean gameOver) {
-        isGameOver = gameOver;
+        this.isGameOver = gameOver;
     }
 
     public MancalaGameDTO toEntityDTO(){

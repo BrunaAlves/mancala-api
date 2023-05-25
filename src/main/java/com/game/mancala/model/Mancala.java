@@ -21,6 +21,7 @@ public class Mancala {
         if(playersUsername == null) throw new MancalaException("PlayersUsername cannot be null");
         if(playersUsername.size() < 2) throw new MancalaException("PlayersUsername should be more than 2");
         if(playersUsername.size() >= 11) throw new MancalaException("PlayersUsername should be less than 11");
+
         this.numberOfPits = numberOfPits;
         this.numberOfStones = numberOfStones;
 

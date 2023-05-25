@@ -19,11 +19,6 @@ public class ActionDAO implements IActionDAO {
     }
 
     @Override
-    public void delete(Action action) {
-
-    }
-
-    @Override
     public List<Action> addAll(List<Action> actions) {
         this.actions.addAll(actions);
         return actions;

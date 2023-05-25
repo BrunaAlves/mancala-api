@@ -6,10 +6,10 @@ import java.util.UUID;
 
 @Getter
 public class PlayAgainAction extends Action {
-    private UUID PlayAgainPlayerId;
+    private UUID playAgainPlayerId;
 
     public PlayAgainAction(UUID playAgainPlayerId) {
         super.setActionType(ActionType.PLAY_AGAIN);
-        PlayAgainPlayerId = playAgainPlayerId;
+        this.playAgainPlayerId = playAgainPlayerId;
     }
 }

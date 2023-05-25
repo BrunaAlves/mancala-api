@@ -9,8 +9,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class PlayerDTO {
-    UUID id;
-    String username;
-    PitDTO largePit;
-    List<PitDTO> pits;
+    private UUID id;
+    private String username;
+    private PitDTO largePit;
+    private List<PitDTO> pits;
 }
