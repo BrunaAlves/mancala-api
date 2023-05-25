@@ -28,7 +28,7 @@ public class MancalaServiceTest {
 
     @AfterEach
     public void finish(){
-        // Run after each test because the MancalaGame needs to be detroyed
+        // Run after each test because the MancalaGame needs to be destroyed
         if(mancalaService.isGameStarted()) {
             mancalaService.endGame();
         }

@@ -5,7 +5,6 @@ import com.game.mancala.exception.MancalaException;
 import com.game.mancala.model.*;
 import com.game.mancala.dao.ActionDAO;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +27,6 @@ public class MancalaService {
     public MancalaGame getGame(){
         return mancalaGameDAO.getGame()
                 .orElseThrow(() -> {throw new MancalaException(MESSAGE_NO_GAME_STARTED);});
-
     }
 
     public MancalaGame startGame(List<String> listOfPlayersUsername, int numberOfPits, int numberOfStones) {
@@ -98,7 +96,7 @@ public class MancalaService {
         if(endOnMyOwnPit &&
                 currentPit.getStones() == 1 &&
                 !currentPit.equals(mancala.getCurrentPlayer().getLargePit())) {
-            actions.add(capturesOwnAndOppositeStones(currentPit));
+            actions.add(capturesOwnAndOppositePitStones(currentPit));
             isAllowedToPlayAgain = false;
         }
 
@@ -136,8 +134,7 @@ public class MancalaService {
         return false;
     }
 
-    //TODO: better name and improve function
-    private CaptureStoneAction capturesOwnAndOppositeStones(Pit currentPit) {
+    private CaptureStoneAction capturesOwnAndOppositePitStones(Pit currentPit) {
         MancalaGame mancala = this.getGame();
         int pitIndex =  mancala.getCurrentPlayer().getPits().indexOf(currentPit);
         int totalStonesToAdd =  currentPit.getStones();
@@ -174,8 +171,7 @@ public class MancalaService {
     }
 
     private Optional<Pit> findCurrentPlayerPitById(UUID id) {
-        MancalaGame mancala = this.getGame();
-        return mancala.getCurrentPlayer()
+        return this.getGame().getCurrentPlayer()
                 .getPits()
                 .stream()
                 .filter(p -> p.getId().equals(id))
@@ -201,6 +197,7 @@ public class MancalaService {
                 .stream()
                 .sorted((a, b) -> a.getLargePit().getStones() > b.getLargePit().getStones() ? -1 : 1)
                 .collect(Collectors.toList());
+
         List<Player> winners = sortedWinners
                 .stream()
                 .filter(x -> x.getLargePit().getStones() == sortedWinners.get(0).getLargePit().getStones())
